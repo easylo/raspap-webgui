@@ -245,6 +245,42 @@ function getCountries($id, $binPath)
             $countries[$value] = str_replace("_", " ", $value);
         }
         break;
+    case 4: // AdGuard 
+        $raw_countries = [];
+        $totalLines = count($output);
+        foreach ($output as $index => $item) {
+            if ($index === 0 || $index === $totalLines - 1) {
+                // Sauter la première et la dernière ligne
+                continue;
+            }
+            // $item = preg_replace($pattern, $replace, $item);
+            preg_match($pattern, $item, $matches);
+            $item_country = trim($matches[1]);
+            $item_city =  trim($matches[2]);
+            $item_key = str_replace(" ", "_", $item_city);
+	        if ( strlen($item_key) > 0 ){
+            	// $countries[$item_key] = "{$item_country} {$item_city}";
+                // Ajouter la ville dans le tableau du pays
+                if (!isset($raw_countries[$item_country])) {
+                    $raw_countries[$item_country] = [];
+                }
+                $raw_countries[$item_country][] = $item_city;
+            }
+        }
+        // Étape 1: Trier les pays par ordre alphabétique
+        ksort($raw_countries);
+        // Étape 2: Trier les villes à l'intérieur de chaque pays
+        foreach ($raw_countries as $country => $cities) {
+            sort($raw_countries[$country]); // Trier les villes par ordre alphabétique
+        }
+        // Afficher les résultats triés par pays, puis par ville
+        foreach ($raw_countries as $country => $cities) {
+            foreach ($cities as $city) {
+                $item_key = str_replace(" ", "_", $city);
+                $countries[$item_key] = "{$country} {$city}";
+            }
+        }
+        break;
     default:
         break;
     }
