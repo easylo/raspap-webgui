@@ -257,6 +257,7 @@ function getCountries($id, $binPath)
             preg_match($pattern, $item, $matches);
             $item_country = trim($matches[1]);
             $item_city =  trim($matches[2]);
+            $item_ping =  trim($matches[3]);
             $item_key = str_replace(" ", "_", $item_city);
 	        if ( strlen($item_key) > 0 ){
             	// $countries[$item_key] = "{$item_country} {$item_city}";
@@ -264,7 +265,7 @@ function getCountries($id, $binPath)
                 if (!isset($raw_countries[$item_country])) {
                     $raw_countries[$item_country] = [];
                 }
-                $raw_countries[$item_country][] = $item_city;
+                $raw_countries[$item_country][] = ["city" => $item_city, "ping" => $item_ping ];
             }
         }
         // Étape 1: Trier les pays par ordre alphabétique
@@ -274,10 +275,11 @@ function getCountries($id, $binPath)
             sort($raw_countries[$country]); // Trier les villes par ordre alphabétique
         }
         // Afficher les résultats triés par pays, puis par ville
-        foreach ($raw_countries as $country => $cities) {
-            foreach ($cities as $city) {
-                $item_key = str_replace(" ", "_", $city);
-                $countries[$item_key] = "{$country} {$city}";
+        foreach ($raw_countries as $country => $items) {
+            foreach ($items as $item) {
+                $city = $item["city"];
+                $ping = $item["ping"];
+                $countries[$city] = "{$country} {$city} ({$ping}ms)";
             }
         }
         break;
